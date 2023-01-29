@@ -1,10 +1,25 @@
 import cv2 # import openCV
 
+def selectNextCamera(currentIndex = -1):
+    '''
+    Loads next camera and if there is no available camera at next index, set it to the first one
+    '''
+    index = currentIndex + 1
+    nextCam = cv2.VideoCapture(index)
+    if (nextCam.isOpened):
+        ret, _ = nextCam.read()
+        if ret:
+            return index, nextCam
+        
+        return 0, cv2.VideoCapture(0)
+        
 alg = 'haarcascade_frontalface_default.xml'  # accessed the model file
 
 cascade = cv2.CascadeClassifier(alg) # loading the model with cv2
 
-cam = cv2.VideoCapture(0) # initialization camera
+cameraIndex = None
+cameraIndex, cam = selectNextCamera()  # initialization camera
+Q_KEY, F2_KEY, ENTER_KEY = 81, 113, 13
 
 while True:
     
@@ -22,8 +37,10 @@ while True:
 
     key = cv2.waitKey(1)
 
-    if key == 81 or key == 113 :
+    if key == Q_KEY or key == F2_KEY : 
         break
+    if key == ENTER_KEY: # switch to next camera by pressing Enter
+        cameraIndex, cam = selectNextCamera(cameraIndex)  # select next available camera
 
 cam.release()
 cv2.destroyAllWindows()
